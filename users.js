@@ -215,13 +215,18 @@ users.post('/createrequest', function(req, res) {
 	var token = req.body.token || req.headers['token'];
     var appData = {};
     if (token) {
-        jwt.verify(token, process.env.SECRET_KEY, function(err) {
+        jwt.verify(token, process.env.SECRET_KEY, function(err, decoded) {
             if (err) {
                 appData["error"] = 1;
                 appData["data"] = "Token is invalid";
                 res.status(500).json(appData);
             } else { var appData = {};
-    
+    var userData={
+	
+	"isbnNumber" = req.body.isbnNumber,
+	"quantity"= req.body.quantity,
+	"email"=decoded.email
+	}
                   database.connection.getConnection(function(err, connection) {
         if (err) {
             appData["error"] = 1;
@@ -251,12 +256,7 @@ users.post('/createrequest', function(req, res) {
         appData["data"] = "Please send a token";
         res.status(403).json(appData);
     }
-	var userData={
 	
-	"isbnNumber" = req.body.isbnNumber,
-	"quantity"= req.body.quantity,
-	"token"=token
-	}
    
 
   
@@ -266,7 +266,7 @@ users.post('/createavailable', function(req, res) {
 	var token = req.body.token || req.headers['token'];
     var appData = {};
     if (token) {
-        jwt.verify(token, process.env.SECRET_KEY, function(err) {
+        jwt.verify(token, process.env.SECRET_KEY, function(err,decoded) {
             if (err) {
                 appData["error"] = 1;
                 appData["data"] = "Token is invalid";
@@ -275,7 +275,8 @@ users.post('/createavailable', function(req, res) {
 	
 	"isbnNumber" = req.body.isbnNumber,
 	"quantity"= req.body.quantity,
-	"token"=token
+	"email"=decoded.email
+	
 	}
     var appData = {};
                 database.connection.getConnection(function(err, connection) {
@@ -319,23 +320,21 @@ users.get('/getmyavailable', function(req, res) {
 	var token = req.body.token || req.headers['token'];
     var appData = {};
     if (token) {
-        jwt.verify(token, process.env.SECRET_KEY, function(err) {
+        jwt.verify(token, process.env.SECRET_KEY, function(err, decoded) {
             if (err) {
                 appData["error"] = 1;
                 appData["data"] = "Token is invalid";
                 res.status(500).json(appData);
             } else {
-  var appData = {};
-    jwt.verify(token, process.env.SECRET_KEY, function(err, decode){
-          console.log(decode.email)
-    });
+                 console.log(decoded.email)
+                 var appData = {};
                   database.connection.getConnection(function(err, connection) {
         if (err) {
             appData["error"] = 1;
             appData["data"] = "Internal Server Error";
             res.status(500).json(appData);
         } else {
-            connection.query('SELECT *FROM booksavailable WHERE email= ?',[decode],  function(err, rows, fields) {
+            connection.query('SELECT *FROM booksavailable WHERE email= ?',[decoded],  function(err, rows, fields) {
                 if (!err) {
                     appData["error"] = 0;
                     appData["data"] = rows;
@@ -369,8 +368,8 @@ users.get('/getmyrequested', function(req, res) {
                 res.status(500).json(appData);
             } else {   var appData = {};
     
-               jwt.verify(token, process.env.SECRET_KEY, function(err, decode){
-          console.log(decode.email)
+               jwt.verify(token, process.env.SECRET_KEY, function(err, decoded){
+          console.log(decoded.email)
     });
     database.connection.getConnection(function(err, connection) {
         if (err) {
@@ -378,7 +377,7 @@ users.get('/getmyrequested', function(req, res) {
             appData["data"] = "Internal Server Error";
             res.status(500).json(appData);
         } else {
-            connection.query('SELECT *FROM booksrequested WHERE email=?',[decode] function(err, rows, fields) {
+            connection.query('SELECT *FROM booksrequested WHERE email=?',[decoded] function(err, rows, fields) {
                 if (!err) {
                     appData["error"] = 0;
                     appData["data"] = rows;
@@ -411,8 +410,8 @@ users.get('/mytansactions', function(req, res) {
                 appData["data"] = "Token is invalid";
                 res.status(500).json(appData);
             } else {
-                jwt.verify(token, process.env.SECRET_KEY, function(err, decode){
-          console.log(decode.email)
+                jwt.verify(token, process.env.SECRET_KEY, function(err, decoded){
+          console.log(decoded.email)
     });
     database.connection.getConnection(function(err, connection) {
         if (err) {
@@ -420,7 +419,7 @@ users.get('/mytansactions', function(req, res) {
             appData["data"] = "Internal Server Error";
             res.status(500).json(appData);
         } else {
-            connection.query('SELECT *FROM transactions WHERE email = ?',[decode], function(err, rows, fields) {
+            connection.query('SELECT *FROM transactions WHERE email = ?',[decoded], function(err, rows, fields) {
                 if (!err) {
                     appData["error"] = 0;
                     appData["data"] = rows;
