@@ -100,7 +100,7 @@ users.get('/getbooksavailable', function(req, res) {
                 appData["error"] = 1;
                 appData["data"] = "Token is invalid";
                 res.status(500).json(appData);
-            } else {
+            } else {   var appData = {};
                 database.connection.getConnection(function(err, connection) {
         	if (err) {
             	appData["error"] = 1;
@@ -127,7 +127,7 @@ users.get('/getbooksavailable', function(req, res) {
         appData["data"] = "Please send a token";
         res.status(403).json(appData);
     }
-    var appData = {};
+ 
 
 });
 users.get('/getbooksrequested', function(req, res) {
@@ -139,7 +139,8 @@ users.get('/getbooksrequested', function(req, res) {
                 appData["error"] = 1;
                 appData["data"] = "Token is invalid";
                 res.status(500).json(appData);
-            } else {
+            } else { var appData = {};
+
                 database.connection.getConnection(function(err, connection) {
         if (err) {
             appData["error"] = 1;
@@ -166,8 +167,7 @@ users.get('/getbooksrequested', function(req, res) {
         appData["data"] = "Please send a token";
         res.status(403).json(appData);
     }
-    var appData = {};
-
+   
     
 });
 users.get('/getallbooks', function(req, res) {
@@ -179,7 +179,7 @@ users.get('/getallbooks', function(req, res) {
                 appData["error"] = 1;
                 appData["data"] = "Token is invalid";
                 res.status(500).json(appData);
-            } else {
+            } else {   var appData = {};
                 database.connection.getConnection(function(err, connection) {
         if (err) {
             appData["error"] = 1;
@@ -206,7 +206,7 @@ users.get('/getallbooks', function(req, res) {
         appData["data"] = "Please send a token";
         res.status(403).json(appData);
     }
-    var appData = {};
+ 
 
     
 });
@@ -220,7 +220,8 @@ users.post('/createrequest', function(req, res) {
                 appData["error"] = 1;
                 appData["data"] = "Token is invalid";
                 res.status(500).json(appData);
-            } else {
+            } else { var appData = {};
+    
                   database.connection.getConnection(function(err, connection) {
         if (err) {
             appData["error"] = 1;
@@ -256,8 +257,7 @@ users.post('/createrequest', function(req, res) {
 	"quantity"= req.body.quantity,
 	"token"=token
 	}
-    var appData = {};
-    
+   
 
   
 });
@@ -271,7 +271,13 @@ users.post('/createavailable', function(req, res) {
                 appData["error"] = 1;
                 appData["data"] = "Token is invalid";
                 res.status(500).json(appData);
-            } else {
+            } else { var userData={
+	
+	"isbnNumber" = req.body.isbnNumber,
+	"quantity"= req.body.quantity,
+	"token"=token
+	}
+    var appData = {};
                 database.connection.getConnection(function(err, connection) {
         if (err) {
             appData["error"] = 1;
@@ -304,13 +310,7 @@ users.post('/createavailable', function(req, res) {
         appData["data"] = "Please send a token";
         res.status(403).json(appData);
     }
-	var userData={
 	
-	"isbnNumber" = req.body.isbnNumber,
-	"quantity"= req.body.quantity,
-	"token"=token
-	}
-    var appData = {};
     
 
     
@@ -324,7 +324,9 @@ users.get('/getmyavailable', function(req, res) {
                 appData["error"] = 1;
                 appData["data"] = "Token is invalid";
                 res.status(500).json(appData);
-            } else {jwt.verify(token, process.env.SECRET_KEY, function(err, decode){
+            } else {
+  var appData = {};
+    jwt.verify(token, process.env.SECRET_KEY, function(err, decode){
           console.log(decode.email)
     });
                   database.connection.getConnection(function(err, connection) {
@@ -353,8 +355,7 @@ users.get('/getmyavailable', function(req, res) {
         appData["data"] = "Please send a token";
         res.status(403).json(appData);
     }
-    var appData = {};
-    
+  
   
 });
 users.get('/getmyrequested', function(req, res) {
@@ -366,7 +367,8 @@ users.get('/getmyrequested', function(req, res) {
                 appData["error"] = 1;
                 appData["data"] = "Token is invalid";
                 res.status(500).json(appData);
-            } else {
+            } else {   var appData = {};
+    
                jwt.verify(token, process.env.SECRET_KEY, function(err, decode){
           console.log(decode.email)
     });
@@ -396,13 +398,13 @@ users.get('/getmyrequested', function(req, res) {
         appData["data"] = "Please send a token";
         res.status(403).json(appData);
     }
-    var appData = {};
-    
+ 
 });
 users.get('/mytansactions', function(req, res) {
 	var token = req.body.token || req.headers['token'];
     var appData = {};
-    if (token) {
+    if (token) { var appData = {};
+    
         jwt.verify(token, process.env.SECRET_KEY, function(err) {
             if (err) {
                 appData["error"] = 1;
@@ -438,7 +440,6 @@ users.get('/mytansactions', function(req, res) {
         appData["data"] = "Please send a token";
         res.status(403).json(appData);
     }
-    var appData = {};
-    
+   
 });
 module.exports = users;
