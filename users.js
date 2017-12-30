@@ -17,10 +17,11 @@ users.post('/register', function(req, res) {
         "data": ""
     };
     var userData = {
-        "username": req.body.username,
-        "email": req.body.email,
-        "password": req.body.password,
-        "created": today
+        username: req.body.username,
+        email: req.body.email,
+        password: req.body.password,
+        created: today,
+	
     }
 
     database.connection.getConnection(function(err, connection) {
@@ -29,7 +30,7 @@ users.post('/register', function(req, res) {
             appData["data"] = "Internal Server Error";
             res.status(500).json(appData);
         } else {
-            connection.query('INSERT INTO users SET ?', userData, function(err, rows, fields) {
+            connection.query('INSERT INTO Users SET ?', userData, function(err, rows, fields) {
                 if (!err) {
                     appData.error = 0;
                     appData["data"] = "User registered successfully!";
@@ -107,7 +108,7 @@ users.get('/getbooksavailable', function(req, res) {
             	appData["data"] = "Internal Server Error";
            	 res.status(500).json(appData);
       		  } else {
-           	 connection.query('SELECT *FROM booksavailable', function(err, rows, fields) {
+           	 connection.query('SELECT * FROM booksavailable', function(err, rows, fields) {
                 if (!err) {
                     appData["error"] = 0;
                     appData["data"] = rows;
@@ -147,7 +148,7 @@ users.get('/getbooksrequested', function(req, res) {
             appData["data"] = "Internal Server Error";
             res.status(500).json(appData);
         } else {
-            connection.query('SELECT *FROM booksrequested', function(err, rows, fields) {
+            connection.query('SELECT * FROM booksrequested', function(err, rows, fields) {
                 if (!err) {
                     appData["error"] = 0;
                     appData["data"] = rows;
@@ -223,9 +224,9 @@ users.post('/createrequest', function(req, res) {
             } else { var appData = {};
     var userData={
 	
-	"isbnNumber" = req.body.isbnNumber,
-	"quantity"= req.body.quantity,
-	"email"=decoded.email
+	"isbnNumber" : req.body.isbnNumber,
+	"quantity": req.body.quantity,
+	"email":decoded.email
 	}
                   database.connection.getConnection(function(err, connection) {
         if (err) {
@@ -233,12 +234,12 @@ users.post('/createrequest', function(req, res) {
             appData["data"] = "Internal Server Error";
             res.status(500).json(appData);
         } else {
-            connection.query('INSERT INTO booksrequested VALUES ?',userData,  function(err, rows, fields) {
-                if (!err) {
+            connection.query('INSERT INTO booksrequested SET ?',userData,  function(err, rows, fields) {
+                if (!err) { 
                     appData.error = 0;
                     appData["data"] = "Book added successfully!";
                     res.status(201).json(appData);
-			availabilityId = 
+			
                 } else {
 			console.log(err);
                     appData["data"] = "Error Occured!";
@@ -264,18 +265,22 @@ users.post('/createrequest', function(req, res) {
 
 users.post('/createavailable', function(req, res) {
 	var token = req.body.token || req.headers['token'];
-    var appData = {};
+   
     if (token) {
         jwt.verify(token, process.env.SECRET_KEY, function(err,decoded) {
-            if (err) {
-                appData["error"] = 1;
-                appData["data"] = "Token is invalid";
+            if (err) { var appData = {};
+		       var verr="error";
+	              var vdata="data";
+                       appData[verr] = 1;
+	
+                    appData[vdata] = "Token is invalid";
+			console.log(err);
                 res.status(500).json(appData);
             } else { var userData={
 	
-	"isbnNumber" = req.body.isbnNumber,
-	"quantity"= req.body.quantity,
-	"email"=decoded.email
+	isbnNumber: 12,
+	quantity: req.body.quantity,
+	email:decoded.email
 	
 	}
     var appData = {};
@@ -285,12 +290,12 @@ users.post('/createavailable', function(req, res) {
             appData["data"] = "Internal Server Error";
             res.status(500).json(appData);
         } else {
-            connection.query('INSERT INTO booksrequested VALUES ?',userData,  function(err, rows, fields) {
+            connection.query('INSERT INTO booksavailable SET ?', userData,  function(err, rows, fields) {
                 if (!err) {
                     appData.error = 0;
-                    appData["data"] = "Book requested successfully!";
+                    appData["data"] = "Book made available successfully!";
                     res.status(201).json(appData);
-			requestId = 
+			
                 } else {
 			console.log(err);
                     appData["data"] = "Error Occured!";
@@ -299,7 +304,7 @@ users.post('/createavailable', function(req, res) {
                 }
 
 
-                }
+                
             });
             connection.release();
         }
@@ -377,7 +382,7 @@ users.get('/getmyrequested', function(req, res) {
             appData["data"] = "Internal Server Error";
             res.status(500).json(appData);
         } else {
-            connection.query('SELECT *FROM booksrequested WHERE email=?',[decoded] function(err, rows, fields) {
+            connection.query('SELECT *FROM booksrequested WHERE email=?',[decoded], function(err, rows, fields) {
                 if (!err) {
                     appData["error"] = 0;
                     appData["data"] = rows;
