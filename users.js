@@ -286,7 +286,7 @@ users.post('/createavailable', function(req, res) {
             } else { var today = new Date();
 	var userData={
 	location : req.body.location,
-	imageurl : req.body.imageurl;
+	imageurl : req.body.imageurl,
 	isbnNumber: req.body.isbnNumber,
 	quantity: req.body.quantity,
 	email:decoded.email,
