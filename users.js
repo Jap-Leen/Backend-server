@@ -21,6 +21,7 @@ users.post('/register', function(req, res) {
         email: req.body.email,
         password: req.body.password,
         created: today,
+	type: req.body.ty,
 	
     }
 
@@ -97,9 +98,13 @@ users.get('/getbooksavailable', function(req, res) {
     var appData = {};
     if (token) {
         jwt.verify(token, process.env.SECRET_KEY, function(err) {
-            if (err) {
-                appData["error"] = 1;
-                appData["data"] = "Token is invalid";
+            if (err) {var appData = {};
+		       var verr="error";
+	              var vdata="data";
+                       appData[verr] = 1;
+	
+                    appData[vdata] = "Token is invalid";
+			console.log(err);
                 res.status(500).json(appData);
             } else {   var appData = {};
                 database.connection.getConnection(function(err, connection) {
@@ -187,12 +192,12 @@ users.get('/getallbooks', function(req, res) {
             appData["data"] = "Internal Server Error";
             res.status(500).json(appData);
         } else {
-            connection.query('SELECT bookisbnnumber, id FROM booksavailable UNION SELECT bookisbnnumber,id FROM booksrequested', function(err, rows, fields) {
+            connection.query('SELECT isbnNumber, quantity, email, created FROM booksavailable UNION SELECT isbnNumber, quantity, email, created FROM booksrequested', function(err, rows, fields) {
                 if (!err) {
                     appData["error"] = 0;
                     appData["data"] = rows;
                     res.status(200).json(appData);
-                } else {
+                } else {console.log(err);
                     appData["data"] = "No data found";
                     res.status(204).json(appData);
                 }
@@ -221,12 +226,14 @@ users.post('/createrequest', function(req, res) {
                 appData["error"] = 1;
                 appData["data"] = "Token is invalid";
                 res.status(500).json(appData);
-            } else { var appData = {};
+            } else { var today = new Date();
+var appData = {};
     var userData={
-	
-	"isbnNumber" : req.body.isbnNumber,
-	"quantity": req.body.quantity,
-	"email":decoded.email
+	location : req.body.location,
+	isbnNumber : req.body.isbnNumber,
+	quantity: req.body.quantity,
+	email:decoded.email,
+	created : today,
 	}
                   database.connection.getConnection(function(err, connection) {
         if (err) {
@@ -237,7 +244,7 @@ users.post('/createrequest', function(req, res) {
             connection.query('INSERT INTO booksrequested SET ?',userData,  function(err, rows, fields) {
                 if (!err) { 
                     appData.error = 0;
-                    appData["data"] = "Book added successfully!";
+                    appData["data"] = "Book requested successfully!";
                     res.status(201).json(appData);
 			
                 } else {
@@ -276,11 +283,14 @@ users.post('/createavailable', function(req, res) {
                     appData[vdata] = "Token is invalid";
 			console.log(err);
                 res.status(500).json(appData);
-            } else { var userData={
-	
-	isbnNumber: 12,
+            } else { var today = new Date();
+	var userData={
+	location : req.body.location,
+	imageurl : req.body.imageurl;
+	isbnNumber: req.body.isbnNumber,
 	quantity: req.body.quantity,
-	email:decoded.email
+	email:decoded.email,
+	created: today,
 	
 	}
     var appData = {};
@@ -293,7 +303,7 @@ users.post('/createavailable', function(req, res) {
             connection.query('INSERT INTO booksavailable SET ?', userData,  function(err, rows, fields) {
                 if (!err) {
                     appData.error = 0;
-                    appData["data"] = "Book made available successfully!";
+                    appData["data"] = "Book added successfully!";
                     res.status(201).json(appData);
 			
                 } else {
@@ -339,12 +349,12 @@ users.get('/getmyavailable', function(req, res) {
             appData["data"] = "Internal Server Error";
             res.status(500).json(appData);
         } else {
-            connection.query('SELECT *FROM booksavailable WHERE email= ?',[decoded],  function(err, rows, fields) {
+            connection.query('SELECT * FROM booksavailable WHERE email= ?',[decoded.email],  function(err, rows, fields) {
                 if (!err) {
                     appData["error"] = 0;
                     appData["data"] = rows;
                     res.status(200).json(appData);
-                } else {
+                } else {console.log(err);
                     appData["data"] = "No data found";
                     res.status(204).json(appData);
                 }
@@ -366,28 +376,26 @@ users.get('/getmyrequested', function(req, res) {
 	var token = req.body.token || req.headers['token'];
     var appData = {};
     if (token) {
-        jwt.verify(token, process.env.SECRET_KEY, function(err) {
+        jwt.verify(token, process.env.SECRET_KEY, function(err, decoded) {
             if (err) {
                 appData["error"] = 1;
                 appData["data"] = "Token is invalid";
                 res.status(500).json(appData);
-            } else {   var appData = {};
-    
-               jwt.verify(token, process.env.SECRET_KEY, function(err, decoded){
-          console.log(decoded.email)
-    });
-    database.connection.getConnection(function(err, connection) {
+            } else {
+                 console.log(decoded.email)
+                 var appData = {};
+                  database.connection.getConnection(function(err, connection) {
         if (err) {
             appData["error"] = 1;
             appData["data"] = "Internal Server Error";
             res.status(500).json(appData);
         } else {
-            connection.query('SELECT *FROM booksrequested WHERE email=?',[decoded], function(err, rows, fields) {
+            connection.query('SELECT * FROM booksrequested WHERE email= ?',[decoded.email],  function(err, rows, fields) {
                 if (!err) {
                     appData["error"] = 0;
                     appData["data"] = rows;
                     res.status(200).json(appData);
-                } else {
+                } else {console.log(err);
                     appData["data"] = "No data found";
                     res.status(204).json(appData);
                 }
@@ -404,32 +412,30 @@ users.get('/getmyrequested', function(req, res) {
     }
  
 });
-users.get('/mytansactions', function(req, res) {
+users.get('/mytransactions', function(req, res) {
 	var token = req.body.token || req.headers['token'];
     var appData = {};
-    if (token) { var appData = {};
-    
-        jwt.verify(token, process.env.SECRET_KEY, function(err) {
+    if (token) {
+        jwt.verify(token, process.env.SECRET_KEY, function(err, decoded) {
             if (err) {
                 appData["error"] = 1;
                 appData["data"] = "Token is invalid";
                 res.status(500).json(appData);
             } else {
-                jwt.verify(token, process.env.SECRET_KEY, function(err, decoded){
-          console.log(decoded.email)
-    });
-    database.connection.getConnection(function(err, connection) {
+                 console.log(decoded.email)
+                 var appData = {};
+                  database.connection.getConnection(function(err, connection) {
         if (err) {
             appData["error"] = 1;
             appData["data"] = "Internal Server Error";
             res.status(500).json(appData);
         } else {
-            connection.query('SELECT *FROM transactions WHERE email = ?',[decoded], function(err, rows, fields) {
+            connection.query('SELECT * FROM transactions WHERE email= ?',[decoded.email],  function(err, rows, fields) {
                 if (!err) {
                     appData["error"] = 0;
                     appData["data"] = rows;
                     res.status(200).json(appData);
-                } else {
+                } else {console.log(err);
                     appData["data"] = "No data found";
                     res.status(204).json(appData);
                 }
@@ -444,6 +450,6 @@ users.get('/mytansactions', function(req, res) {
         appData["data"] = "Please send a token";
         res.status(403).json(appData);
     }
-   
+ 
 });
 module.exports = users;
