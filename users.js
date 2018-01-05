@@ -4,6 +4,7 @@ var database = require('../Database/database');
 var cors = require('cors')
 var jwt = require('jsonwebtoken');
 var token;
+var _ =require('lodash');
 
 users.use(cors());
 
@@ -31,7 +32,7 @@ users.post('/register', function(req, res) {
             appData["data"] = "Internal Server Error";
             res.status(500).json(appData);
         } else {
-            connection.query('INSERT INTO Users SET ?', userData, function(err, rows, fields) {
+            connection.query('INSERT INTO users SET ?', userData, function(err, rows, fields) {
                 if (!err) {
                     appData.error = 0;
                     appData["data"] = "User registered successfully!";
@@ -68,7 +69,7 @@ users.post('/login', function(req, res) {
                 } else {
                     if (rows.length > 0) {
                         if (rows[0].password == password) {
-                            token = jwt.sign(rows[0], process.env.SECRET_KEY, {
+                            token = jwt.sign(_.omit(rows[0],'password'), process.env.SECRET_KEY, {
                                 expiresIn: 5000
                             });
                             appData.error = 0;
